@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract FixedPrice is Ownable {
     constructor() {}
     // ------- structs ------- //
-    struct FixedPrice {
+    struct FixedPriceItem {
         uint256 price;
         address creator;
     }
@@ -16,7 +16,7 @@ contract FixedPrice is Ownable {
     address constant public EMPTY_ADDRESS = 0x0000000000000000000000000000000000000000;
     // ------- mapping ------- //
     // mapping contract sale and id to sell data;
-    mapping(bytes32 => FixedPrice) private mapTokenToFixedPrice;
+    mapping(bytes32 => FixedPriceItem) private mapTokenToFixedPriceItem;
 
     // Sell an item at fixed price
     function sell(address _contract_sale, uint256 _token_id, uint256 _price) external {
@@ -27,16 +27,16 @@ contract FixedPrice is Ownable {
         // transfer to sale contract
         contractSale.transferFrom(msg.sender, address(this), _token_id);
         // write data to map
-        mapTokenToFixedPrice[hashed] = FixedPrice(_price, msg.sender);
+        mapTokenToFixedPriceItem[hashed] = FixedPriceItem(_price, msg.sender);
     }
 
     // Buy
     function buy(address _contract_sale, uint256 _token_id) external payable {
         // get data out
         IERC721 contractSale = IERC721(_contract_sale);
-        bytes32 hashedFixedPrice = sha256(abi.encodePacked(_contract_sale, _token_id));
-        uint256 itemPrice = mapTokenToFixedPrice[hashedFixedPrice].price;
-        address creator = mapTokenToFixedPrice[hashedFixedPrice].creator;
+        bytes32 hashedFixedPriceItem = sha256(abi.encodePacked(_contract_sale, _token_id));
+        uint256 itemPrice = mapTokenToFixedPriceItem[hashedFixedPriceItem].price;
+        address creator = mapTokenToFixedPriceItem[hashedFixedPriceItem].creator;
         require(creator != EMPTY_ADDRESS, "NOT_EXISTED");
         require(msg.value >= itemPrice, "NOT_ENOUGH_ETHER");
         // Return any extra
@@ -58,15 +58,15 @@ contract FixedPrice is Ownable {
         address creator
     ) {
         bytes32 hashed = sha256(abi.encodePacked(_contract_sale, _token_id));
-        price = mapTokenToFixedPrice[hashed].price;
-        creator = mapTokenToFixedPrice[hashed].creator;
+        price = mapTokenToFixedPriceItem[hashed].price;
+        creator = mapTokenToFixedPriceItem[hashed].creator;
     }
 
     // Cancel sell
     function cancelSell(address _contract_sale, uint256 _token_id) external {
-        bytes32 hashedFixedPrice = sha256(abi.encodePacked(_contract_sale, _token_id));
+        bytes32 hashedFixedPriceItem = sha256(abi.encodePacked(_contract_sale, _token_id));
         IERC721 contractSale = IERC721(_contract_sale);
-        require(mapTokenToFixedPrice[hashedFixedPrice].creator == msg.sender, "NOT_CREATOR");
-        contractSale.transferFrom(address(this), mapTokenToFixedPrice[hashedFixedPrice].creator, _token_id);
+        require(mapTokenToFixedPriceItem[hashedFixedPriceItem].creator == msg.sender, "NOT_CREATOR");
+        contractSale.transferFrom(address(this), mapTokenToFixedPriceItem[hashedFixedPriceItem].creator, _token_id);
     }
 }
