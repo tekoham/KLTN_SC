@@ -12,8 +12,13 @@ contract CollectionFactory is ICollectionFactory {
     mapping(uint256 => address) collectionAddresses;
     using Counters for Counters.Counter;
     Counters.Counter collectionIds;
+    address sellContractAddress;
+    address auctionContractAddress;
 
-    constructor() {}
+    constructor(address _sellContractAddress, address _auctionContractAddress) {
+        sellContractAddress = _sellContractAddress;
+        auctionContractAddress = _auctionContractAddress;
+    }
 
     function createCollection(string memory _name, string memory _symbol)
         external
@@ -22,7 +27,7 @@ contract CollectionFactory is ICollectionFactory {
         returns (address)
     {
         collectionIds.increment();
-        Collection collection = new Collection(_name, _symbol);
+        Collection collection = new Collection(_name, _symbol, sellContractAddress, auctionContractAddress);
         address collectionAddress = address(collection);
         collectionAddresses[collectionIds.current()] = collectionAddress;
         emit CollectionCreated(

@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.10;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "../interface/IAuction.sol";
 
-contract Auctions is Ownable {
+contract Auctions is Ownable, IAuction {
     constructor() {}
     // ------- structs ------- //
     struct Auction {
@@ -28,19 +29,19 @@ contract Auctions is Ownable {
     mapping(bytes32 => uint256) private mapBiddedAddress;
 
     // start an auction
-    function start(address _contract_sale, uint256 _token_id, address _coin_buy, uint256 _start_price) external {
+    function start(address _contract_sale, uint256 _token_id, address _coin_buy, uint256 _start_price) external override {
         bytes32 hashed = sha256(abi.encodePacked(_contract_sale, _token_id));
         IERC721 contractSale = IERC721(_contract_sale);
-        // must be owner
-        require(contractSale.ownerOf(_token_id) == msg.sender, "NOT_OWNED");
+        // must be owner or collection
+        require(contractSale.ownerOf(_token_id) == msg.sender || msg.sender == _contract_sale, "NOT_OWNED");
         // transfer to sale contract
-        contractSale.transferFrom(msg.sender, address(this), _token_id);
+        contractSale.transferFrom(msg.sender == _contract_sale ? contractSale.ownerOf(_token_id) : msg.sender, address(this), _token_id);
         // write data to map
         mapTokenToAuction[hashed] = Auction(_start_price, EMPTY_ADDRESS, _coin_buy, msg.sender, false);
     }
 
     // bid
-    function bid(address _contract_sale, uint256 _token_id, uint256 amount) external {
+    function bid(address _contract_sale, uint256 _token_id, uint256 amount) external override {
         // get auction data out
         bytes32 hashedAuction = sha256(abi.encodePacked(_contract_sale, _token_id));
         require(mapTokenToAuction[hashedAuction].creator != EMPTY_ADDRESS, "NOT_EXISTED");
@@ -59,7 +60,7 @@ contract Auctions is Ownable {
     }
 
     // return auction info
-    function auctionInfo(address _contract_sale, uint256 _token_id) external view returns(
+    function auctionInfo(address _contract_sale, uint256 _token_id) external override view returns(
         uint256 start_price,
         address highest_bidder,
         address coin_buy,
@@ -75,13 +76,13 @@ contract Auctions is Ownable {
     }
 
 
-    function biddedBalance(address _contract_sale, uint256 _token_id, address _bidder) external view returns(uint256 bidded) {
+    function biddedBalance(address _contract_sale, uint256 _token_id, address _bidder) external override view returns(uint256 bidded) {
         bytes32 hashed = sha256(abi.encodePacked(_contract_sale, _token_id, _bidder));
         bidded = mapBiddedAddress[hashed];
     }
 
     // withdraw back when bidding is end
-    function withdraw(address _contract_sale, uint256 _token_id) external {
+    function withdraw(address _contract_sale, uint256 _token_id) external override {
         bytes32 hashedAuction = sha256(abi.encodePacked(_contract_sale, _token_id));
         bytes32 hashedBidder = sha256(abi.encodePacked(_contract_sale, _token_id, msg.sender));
         require(mapTokenToAuction[hashedAuction].ended == true, "NOT_END_YET");
@@ -91,7 +92,7 @@ contract Auctions is Ownable {
     }
 
     // finish auction, only can call by creator to force stop auction. Asset will deliver to the highest bidded account
-    function finish(address _contract_sale, uint256 _token_id) external {
+    function finish(address _contract_sale, uint256 _token_id) external override {
         bytes32 hashed = sha256(abi.encodePacked(_contract_sale, _token_id));
         Auction memory auction;
         auction = mapTokenToAuction[hashed];

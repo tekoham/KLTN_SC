@@ -10,7 +10,7 @@ interface ICollection {
     }
 
     /**
-     * DeedManager calls to create deed contract
+     * Mint NFT
      */
     function mint(
         address _to,
@@ -18,5 +18,23 @@ interface ICollection {
         string memory _description,
         string memory _category,
         string memory _tokenURI
+    ) external returns (uint256);
+
+    function mintAndListForSale(
+        address _to,
+        string memory _name,
+        string memory _description,
+        string memory _category,
+        string memory _tokenURI,
+        uint256 _price
+    ) external returns (uint256);
+
+    function mintAndListOnAuction(
+        address _to,
+        string memory _name,
+        string memory _description,
+        string memory _category,
+        string memory _tokenURI,
+        uint256 _startBid
     ) external returns (uint256);
 }
