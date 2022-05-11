@@ -21,6 +21,8 @@ contract Collection is ERC721URIStorage, Ownable, ICollection {
     {
         sellContractAddress = _sellContractAddress;
         auctionContractAddress = _auctionContractAddress;
+        setApprovalForAll(_sellContractAddress, true);
+        setApprovalForAll(_auctionContractAddress, true);
     }
 
     function mint(
@@ -53,7 +55,6 @@ contract Collection is ERC721URIStorage, Ownable, ICollection {
         collectible[tokenIds.current()].category = _category;
         _safeMint(_to, tokenIds.current());
         _setTokenURI(tokenIds.current(), _tokenURI);
-        approve(sellContractAddress, tokenIds.current());
         IFixedPrice(sellContractAddress).sell(address(this), tokenIds.current(), _price);
         return tokenIds.current();
     }
@@ -72,7 +73,6 @@ contract Collection is ERC721URIStorage, Ownable, ICollection {
         collectible[tokenIds.current()].category = _category;
         _safeMint(_to, tokenIds.current());
         _setTokenURI(tokenIds.current(), _tokenURI);
-        approve(auctionContractAddress, tokenIds.current());
         IAuction(auctionContractAddress).start(address(this), tokenIds.current(), WETH, _startBid);
         return tokenIds.current();
     }
