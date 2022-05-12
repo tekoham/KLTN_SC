@@ -38,6 +38,12 @@ contract Collection is ERC721URIStorage, Ownable, ICollection {
         collectible[tokenIds.current()].category = _category;
         _safeMint(_to, tokenIds.current());
         _setTokenURI(tokenIds.current(), _tokenURI);
+        if(!isApprovedForAll(msg.sender, sellContractAddress)) {
+            setApprovalForAll(sellContractAddress, true);
+        }
+        if(!isApprovedForAll(msg.sender, auctionContractAddress)) {
+            setApprovalForAll(auctionContractAddress, true);
+        }
         return tokenIds.current();
     }
 
@@ -55,6 +61,12 @@ contract Collection is ERC721URIStorage, Ownable, ICollection {
         collectible[tokenIds.current()].category = _category;
         _safeMint(_to, tokenIds.current());
         _setTokenURI(tokenIds.current(), _tokenURI);
+        if(!isApprovedForAll(msg.sender, sellContractAddress)) {
+            setApprovalForAll(sellContractAddress, true);
+        }
+        if(!isApprovedForAll(msg.sender, auctionContractAddress)) {
+            setApprovalForAll(auctionContractAddress, true);
+        }
         IFixedPrice(sellContractAddress).sell(address(this), tokenIds.current(), _price);
         return tokenIds.current();
     }
@@ -73,6 +85,12 @@ contract Collection is ERC721URIStorage, Ownable, ICollection {
         collectible[tokenIds.current()].category = _category;
         _safeMint(_to, tokenIds.current());
         _setTokenURI(tokenIds.current(), _tokenURI);
+        if(!isApprovedForAll(msg.sender, sellContractAddress)) {
+            setApprovalForAll(sellContractAddress, true);
+        }
+        if(!isApprovedForAll(msg.sender, auctionContractAddress)) {
+            setApprovalForAll(auctionContractAddress, true);
+        }
         IAuction(auctionContractAddress).start(address(this), tokenIds.current(), WETH, _startBid);
         return tokenIds.current();
     }

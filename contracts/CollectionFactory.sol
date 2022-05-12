@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "../interface/ICollectionFactory.sol";
 import "./Collection.sol";
 
-contract CollectionFactory is ICollectionFactory {
+contract CollectionFactory is ICollectionFactory, Ownable {
     bool internal processing = false;
     mapping(uint256 => address) collectionAddresses;
     using Counters for Counters.Counter;
@@ -44,5 +44,13 @@ contract CollectionFactory is ICollectionFactory {
         processing = true;
         _;
         processing = false;
+    }
+
+    function setSellContractAddress (address _sellContractAddress) external override onlyOwner {
+        sellContractAddress = _sellContractAddress;
+    }
+
+    function setAuctionContractAddress (address _auctionContractAddress) external override onlyOwner {
+        auctionContractAddress = _auctionContractAddress;
     }
 }

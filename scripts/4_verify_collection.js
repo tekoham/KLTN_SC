@@ -9,7 +9,7 @@ async function main() {
   const Collection = await hre.ethers.getContractFactory('Collection')
 
   const collection = await Collection.attach(
-    '0x09eA7a6cfC745835792A4f2a1709c9236e643EeD'
+    '0x5DFDfD1CE60C660AAfC545403208e5EFe5649c28'
   )
   await collection.deployed()
 
@@ -18,8 +18,8 @@ async function main() {
   await hre.run('verify:verify', {
     address: collection.address,
     constructorArguments: [
-      'Test Collection',
-      'TC',
+      'Game3',
+      'G',
       contracts.fixedPrice,
       contracts.auction,
     ],

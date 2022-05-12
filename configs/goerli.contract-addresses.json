@@ -1,7 +1,7 @@
 {
     "goerli": {
-        "collectionFactory": "0x11B34AD7272A801Fdeb0Fc7B66C4A6D73521e17e",
-        "fixedPrice": "0xdDB000E03c5F4a4c916e1995E7e4E968bbEc944f",
-        "auction": "0x73f1e3A6C7bdA7Ae75e8cdA208A382c5bA24d964"
+        "collectionFactory": "0xf5385CB6B8fd273F7f54d71365fFab64eA96aAB1",
+        "fixedPrice": "0xac4cdD44931d4A0Ff6B1Ea9206e02FeaC8EB9a50",
+        "auction": "0xDF5038D080Ca5bd21c6c90F0b004306a26Af4bA8"
     }
 }
